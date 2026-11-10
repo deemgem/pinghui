@@ -63,7 +63,7 @@
   }
   .brand{ display:flex; align-items:center; gap:9px; }
   .brand svg{ width:21px; height:21px; }
-  .brand-name{ font-size:18px; font-weight:600; letter-spacing:.10em; }
+  .brand-name{ font-size:20px; font-weight:600; letter-spacing:.09em; }
   .about{
     width:34px; height:34px; border-radius:50%;
     border:1px solid var(--line-strong);
@@ -93,12 +93,12 @@
   }
   .seg-btn{
     flex:1 1 0; min-width:0;
-    height:38px;
+    height:42px;
     border:0; border-radius:999px;
     background:transparent;
     color:var(--ink-2);
     font-family:var(--sans);
-    font-size:13.5px; font-weight:500; letter-spacing:.06em;
+    font-size:15px; font-weight:500; letter-spacing:.05em;
     cursor:pointer;
     white-space:nowrap;
     transition:color .18s ease, background .18s ease;
@@ -120,21 +120,21 @@
     display:flex; flex-direction:column; gap:7px;
   }
   .unit{ display:flex; align-items:baseline; gap:7px; width:100%; white-space:nowrap; }
-  .unit-cn{ font-size:12.5px; font-weight:500; letter-spacing:.05em; color:var(--ink); }
+  .unit-cn{ font-size:15px; font-weight:500; letter-spacing:.04em; color:var(--ink); }
   .unit-en{
-    font-family:var(--mono); font-size:9px; font-weight:400;
-    letter-spacing:.15em; color:var(--ink-3); text-transform:uppercase;
+    font-family:var(--mono); font-size:10.5px; font-weight:400;
+    letter-spacing:.12em; color:var(--ink-3); text-transform:uppercase;
   }
   .area-in{
     margin-left:auto;
     display:flex; align-items:center; gap:5px;
-    font-size:11px; color:var(--ink-2); letter-spacing:.04em;
+    font-size:13px; color:var(--ink-2); letter-spacing:.03em;
   }
   .area-in[hidden]{ display:none; }
   .area-in input{
-    width:54px; border:0; border-bottom:1px solid var(--line-strong);
-    background:transparent; outline:0; padding:0 0 1px;
-    font-family:var(--mono); font-size:12.5px; font-weight:500;
+    width:60px; border:0; border-bottom:1px solid var(--line-strong);
+    background:transparent; outline:0; padding:0 0 2px;
+    font-family:var(--mono); font-size:14px; font-weight:500;
     color:var(--ink); text-align:right;
   }
   .area-in input:focus{ border-bottom-color:var(--accent); }
@@ -194,7 +194,7 @@
   }
   .copy:active{ background:var(--seg-bg); }
   .sub{
-    font-size:11.5px; letter-spacing:.02em; color:var(--ink-3);
+    font-size:13.5px; letter-spacing:.01em; color:var(--ink-3);
     font-family:var(--mono);
     white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
@@ -204,18 +204,18 @@
     flex:0 0 auto;
     margin-top:12px;
     padding:0 2px;
-    font-size:12px; letter-spacing:.02em;
+    font-size:14px; letter-spacing:.01em;
     color:var(--ink-2);
     display:flex; align-items:center; gap:5px; flex-wrap:wrap;
     line-height:1.6;
   }
   .note b{ font-family:var(--mono); font-weight:500; color:var(--ink); }
   .rate-edit{
-    font-family:var(--mono); font-weight:500; font-size:12px;
+    font-family:var(--mono); font-weight:500; font-size:14px;
     color:var(--accent);
     border:0; border-bottom:1px solid var(--accent);
     background:transparent; outline:0;
-    width:52px; padding:0 0 1px; text-align:center;
+    width:64px; padding:0 0 2px; text-align:center;
     -moz-appearance:textfield;
   }
   .rate-edit::-webkit-outer-spin-button,
@@ -229,17 +229,17 @@
     overflow:hidden;
   }
   .list-cap{
-    font-family:var(--mono); font-size:9px; letter-spacing:.16em;
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
     color:var(--ink-3); text-transform:uppercase;
     padding:0 2px 5px;
   }
   .row{
     display:flex; align-items:center; justify-content:space-between; gap:8px;
     width:100%; padding:0; flex:1 1 auto;
-    min-height:34px;
+    min-height:40px;
     border:0; border-top:1px solid var(--line);
     background:transparent;
-    font-family:var(--mono); font-size:13px;
+    font-family:var(--mono); font-size:15px;
     color:var(--ink-2); cursor:pointer;
     text-align:left;
   }
@@ -247,7 +247,7 @@
   .row .r-in{ color:var(--ink); letter-spacing:-.01em; white-space:nowrap; }
   .row .r-out{ color:var(--accent); font-weight:500; letter-spacing:-.01em; text-align:right; white-space:nowrap; }
   .row .r-in small, .row .r-out small{
-    font-family:var(--sans); font-size:10.5px; letter-spacing:.02em;
+    font-family:var(--sans); font-size:12px; letter-spacing:.02em;
     color:var(--ink-3); margin-left:4px;
   }
 
@@ -257,7 +257,7 @@
     padding:9px 16px;
     background:rgba(23,24,26,.9);
     color:#FBFBF9;
-    font-size:12.5px; letter-spacing:.05em;
+    font-size:13.5px; letter-spacing:.04em;
     border-radius:999px;
     opacity:0; pointer-events:none;
     transition:opacity .22s ease, transform .22s ease;
@@ -288,19 +288,19 @@
   }
   @media (min-width:560px){ .sheet{ border-radius:22px; left:8px; right:8px; bottom:8px; } }
   .sheet-wrap.on .sheet{ transform:translateY(0); }
-  .sheet h3{ margin:0 0 14px; font-size:15px; font-weight:600; letter-spacing:.08em; }
+  .sheet h3{ margin:0 0 14px; font-size:17px; font-weight:600; letter-spacing:.08em; }
   .sheet dl{ margin:0; display:flex; flex-direction:column; gap:11px; }
   .sheet dt{
-    font-size:11px; letter-spacing:.10em; color:var(--ink-3);
+    font-size:12px; letter-spacing:.09em; color:var(--ink-3);
     font-family:var(--mono); text-transform:uppercase;
   }
-  .sheet dd{ margin:3px 0 0; font-size:12.5px; line-height:1.7; color:var(--ink-2); }
+  .sheet dd{ margin:3px 0 0; font-size:14px; line-height:1.75; color:var(--ink-2); }
   .sheet dd b{ font-family:var(--mono); font-weight:500; color:var(--ink); }
   .sheet-close{
     margin-top:18px; width:100%; height:46px;
     border:1px solid var(--line-strong); border-radius:12px;
     background:transparent; color:var(--ink);
-    font-family:var(--sans); font-size:14px; letter-spacing:.08em;
+    font-family:var(--sans); font-size:16px; letter-spacing:.07em;
     cursor:pointer;
   }
   .sheet-close:active{ background:var(--seg-bg); }
