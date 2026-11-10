@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBFBF9">
+<title>坪匯 · 坪與平米、台幣與人民幣</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230F4C43'/%3E%3Cpath d='M11 9v13M11 9l-3.2 3.2M11 9l3.2 3.2M21 23v-13M21 23l3.2-3.2M21 23l-3.2-3.2' fill='none' stroke='%23FBFBF9' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://miaoda.feishu.cn">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --paper:#E9EAE5;
+    --app:#FBFBF9;
+    --card:#FFFFFF;
+    --ink:#17181A;
+    --ink-2:#6B6C66;
+    --ink-3:#A3A49D;
+    --line:#E3E4DE;
+    --line-strong:#D3D4CC;
+    --accent:#0F4C43;
+    --seg-bg:#EDEEE8;
+    --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --sans:-apple-system, BlinkMacSystemFont, "PingFang TC", "PingFang SC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+  }
+
+  *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ margin:0; height:100%; }
+  body{
+    background:var(--paper);
+    font-family:var(--sans);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+
+  .app{
+    position:relative;
+    width:100%;
+    height:100dvh;
+    max-height:100dvh;
+    background:var(--app);
+    display:flex; flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 8px);
+    overflow:hidden;
+    isolation:isolate;
+  }
+  @media (min-width:560px){
+    .app{
+      width:412px;
+      height:min(880px, 94vh);
+      border-radius:42px;
+      border:1px solid var(--line-strong);
+      box-shadow:0 30px 70px -28px rgba(22,25,22,.42), 0 3px 10px rgba(0,0,0,.05);
+      padding:26px 20px 16px;
+    }
+  }
+
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    height:38px; flex:0 0 auto;
+  }
+  .brand{ display:flex; align-items:center; gap:9px; }
+  .brand svg{ width:21px; height:21px; }
+  .brand-name{ font-size:18px; font-weight:600; letter-spacing:.10em; }
+  .about{
+    width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--line-strong);
+    background:transparent; color:var(--ink-2);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0;
+  }
+  .about:active{ background:var(--seg-bg); }
+
+  .ruler{
+    flex:0 0 auto; height:14px; margin:8px 0 0;
+    background:
+      repeating-linear-gradient(to right, #B7B8B0 0 1px, transparent 1px 56px) 0 0/100% 14px no-repeat,
+      repeating-linear-gradient(to right, #B7B8B0 0 1px, transparent 1px 9px) 0 0/100% 7px no-repeat;
+    -webkit-mask-image:linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+    mask-image:linear-gradient(90deg, transparent 0, #000 10%, #000 90%, transparent 100%);
+    opacity:.6;
+  }
+
+  .segmented{
+    flex:0 0 auto;
+    display:flex; gap:2px;
+    margin-top:14px;
+    padding:3px;
+    background:var(--seg-bg);
+    border-radius:999px;
+  }
+  .seg-btn{
+    flex:1 1 0; min-width:0;
+    height:38px;
+    border:0; border-radius:999px;
+    background:transparent;
+    color:var(--ink-2);
+    font-family:var(--sans);
+    font-size:13.5px; font-weight:500; letter-spacing:.06em;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:color .18s ease, background .18s ease;
+  }
+  .seg-btn.is-active{ background:var(--ink); color:var(--app); }
+
+  .panel{
+    flex:0 0 auto;
+    margin-top:14px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    position:relative;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .field{
+    padding:15px 18px 13px;
+    display:flex; flex-direction:column; gap:7px;
+  }
+  .unit{ display:flex; align-items:baseline; gap:7px; width:100%; white-space:nowrap; }
+  .unit-cn{ font-size:12.5px; font-weight:500; letter-spacing:.05em; color:var(--ink); }
+  .unit-en{
+    font-family:var(--mono); font-size:9px; font-weight:400;
+    letter-spacing:.15em; color:var(--ink-3); text-transform:uppercase;
+  }
+  .area-in{
+    margin-left:auto;
+    display:flex; align-items:center; gap:5px;
+    font-size:11px; color:var(--ink-2); letter-spacing:.04em;
+  }
+  .area-in[hidden]{ display:none; }
+  .area-in input{
+    width:54px; border:0; border-bottom:1px solid var(--line-strong);
+    background:transparent; outline:0; padding:0 0 1px;
+    font-family:var(--mono); font-size:12.5px; font-weight:500;
+    color:var(--ink); text-align:right;
+  }
+  .area-in input:focus{ border-bottom-color:var(--accent); }
+
+  .val-input{
+    width:100%; min-width:0;
+    border:0; outline:0; padding:0;
+    background:transparent;
+    font-family:var(--mono); font-weight:500;
+    font-size:clamp(30px, 9.6vw, 38px);
+    line-height:1.15;
+    letter-spacing:-.02em;
+    color:var(--ink);
+    caret-color:var(--accent);
+  }
+  .val-input::placeholder{ color:#C9CAC3; }
+
+  .divider{
+    position:relative;
+    height:1px; margin:0 18px;
+    background:var(--line);
+    flex:0 0 auto;
+  }
+  .swap{
+    position:absolute; right:-4px; top:50%;
+    transform:translateY(-50%);
+    width:42px; height:42px; border-radius:50%;
+    border:1px solid var(--line-strong);
+    background:var(--app);
+    color:var(--accent);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0; z-index:2;
+  }
+  .swap:active{ background:var(--seg-bg); }
+  .swap[hidden]{ display:none; }
+  .swap svg{ width:19px; height:19px; transition:transform .35s cubic-bezier(.2,.7,.3,1); }
+
+  .field.out{ padding-top:13px; padding-bottom:15px; }
+  .val-row{ display:flex; align-items:flex-end; gap:10px; }
+  .val-out{
+    flex:1 1 auto; min-width:0;
+    font-family:var(--mono); font-weight:500;
+    font-size:clamp(30px, 9.6vw, 38px);
+    line-height:1.15;
+    letter-spacing:-.02em;
+    color:var(--accent);
+    overflow:hidden; white-space:nowrap;
+    text-overflow:ellipsis;
+  }
+  .copy{
+    flex:0 0 auto;
+    width:40px; height:40px; border-radius:11px;
+    border:1px solid var(--line-strong);
+    background:transparent; color:var(--ink-2);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; padding:0;
+  }
+  .copy:active{ background:var(--seg-bg); }
+  .sub{
+    font-size:11.5px; letter-spacing:.02em; color:var(--ink-3);
+    font-family:var(--mono);
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .sub.hidden{ display:none; }
+
+  .note{
+    flex:0 0 auto;
+    margin-top:12px;
+    padding:0 2px;
+    font-size:12px; letter-spacing:.02em;
+    color:var(--ink-2);
+    display:flex; align-items:center; gap:5px; flex-wrap:wrap;
+    line-height:1.6;
+  }
+  .note b{ font-family:var(--mono); font-weight:500; color:var(--ink); }
+  .rate-edit{
+    font-family:var(--mono); font-weight:500; font-size:12px;
+    color:var(--accent);
+    border:0; border-bottom:1px solid var(--accent);
+    background:transparent; outline:0;
+    width:52px; padding:0 0 1px; text-align:center;
+    -moz-appearance:textfield;
+  }
+  .rate-edit::-webkit-outer-spin-button,
+  .rate-edit::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+  .list{
+    flex:1 1 auto; min-height:0;
+    margin-top:10px;
+    display:flex; flex-direction:column;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .list-cap{
+    font-family:var(--mono); font-size:9px; letter-spacing:.16em;
+    color:var(--ink-3); text-transform:uppercase;
+    padding:0 2px 5px;
+  }
+  .row{
+    display:flex; align-items:center; justify-content:space-between; gap:8px;
+    width:100%; padding:0; flex:1 1 auto;
+    min-height:34px;
+    border:0; border-top:1px solid var(--line);
+    background:transparent;
+    font-family:var(--mono); font-size:13px;
+    color:var(--ink-2); cursor:pointer;
+    text-align:left;
+  }
+  .row:active{ background:#F6F7F3; }
+  .row .r-in{ color:var(--ink); letter-spacing:-.01em; white-space:nowrap; }
+  .row .r-out{ color:var(--accent); font-weight:500; letter-spacing:-.01em; text-align:right; white-space:nowrap; }
+  .row .r-in small, .row .r-out small{
+    font-family:var(--sans); font-size:10.5px; letter-spacing:.02em;
+    color:var(--ink-3); margin-left:4px;
+  }
+
+  .toast{
+    position:absolute; left:50%; bottom:92px;
+    transform:translate(-50%, 12px);
+    padding:9px 16px;
+    background:rgba(23,24,26,.9);
+    color:#FBFBF9;
+    font-size:12.5px; letter-spacing:.05em;
+    border-radius:999px;
+    opacity:0; pointer-events:none;
+    transition:opacity .22s ease, transform .22s ease;
+    z-index:30;
+    white-space:nowrap;
+    max-width:88%; overflow:hidden; text-overflow:ellipsis;
+  }
+  .toast.on{ opacity:1; transform:translate(-50%,0); }
+
+  .sheet-wrap{
+    position:absolute; inset:0;
+    background:rgba(20,22,20,.34);
+    opacity:0; pointer-events:none;
+    transition:opacity .22s ease;
+    z-index:20;
+    -webkit-backdrop-filter:blur(2px);
+    backdrop-filter:blur(2px);
+  }
+  .sheet-wrap.on{ opacity:1; pointer-events:auto; }
+  .sheet{
+    position:absolute; left:0; right:0; bottom:0;
+    background:var(--app);
+    border-top:1px solid var(--line-strong);
+    border-radius:22px 22px 0 0;
+    padding:20px 22px calc(22px + env(safe-area-inset-bottom));
+    transform:translateY(18px);
+    transition:transform .26s cubic-bezier(.2,.7,.3,1);
+  }
+  @media (min-width:560px){ .sheet{ border-radius:22px; left:8px; right:8px; bottom:8px; } }
+  .sheet-wrap.on .sheet{ transform:translateY(0); }
+  .sheet h3{ margin:0 0 14px; font-size:15px; font-weight:600; letter-spacing:.08em; }
+  .sheet dl{ margin:0; display:flex; flex-direction:column; gap:11px; }
+  .sheet dt{
+    font-size:11px; letter-spacing:.10em; color:var(--ink-3);
+    font-family:var(--mono); text-transform:uppercase;
+  }
+  .sheet dd{ margin:3px 0 0; font-size:12.5px; line-height:1.7; color:var(--ink-2); }
+  .sheet dd b{ font-family:var(--mono); font-weight:500; color:var(--ink); }
+  .sheet-close{
+    margin-top:18px; width:100%; height:46px;
+    border:1px solid var(--line-strong); border-radius:12px;
+    background:transparent; color:var(--ink);
+    font-family:var(--sans); font-size:14px; letter-spacing:.08em;
+    cursor:pointer;
+  }
+  .sheet-close:active{ background:var(--seg-bg); }
+
+  @media (max-height:720px){
+    .ruler{ display:none; }
+    .field{ padding-top:11px; padding-bottom:10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0F4C43" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M8 4.5v15M8 4.5l-2.6 2.6M8 4.5l2.6 2.6"/>
+        <path d="M16 19.5v-15M16 19.5l2.6-2.6M16 19.5l-2.6-2.6"/>
+      </svg>
+      <span class="brand-name">坪匯</span>
+    </div>
+    <button class="about" id="aboutBtn" aria-label="關於換算依據">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" width="16" height="16">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 8.2v.2M12 11v5"/>
+      </svg>
+    </button>
+  </header>
+
+  <div class="ruler" aria-hidden="true"></div>
+
+  <div class="segmented" role="tablist" aria-label="換算類型">
+    <button class="seg-btn is-active" data-mode="price" role="tab" aria-selected="true">單價</button>
+    <button class="seg-btn" data-mode="total" role="tab" aria-selected="false">總價</button>
+    <button class="seg-btn" data-mode="area" role="tab" aria-selected="false">面積</button>
+  </div>
+
+  <section class="panel" id="panel">
+
+    <div class="field">
+      <div class="unit">
+        <span class="unit-cn" id="unitInCn">人民幣 · 每平方公尺</span>
+        <span class="unit-en" id="unitInEn">CNY / SQM</span>
+        <span class="area-in" id="areaWrap" hidden>
+          面積
+          <input id="areaInput" type="text" inputmode="decimal" autocomplete="off" value="100" aria-label="面積平方公尺">
+          ㎡
+        </span>
+      </div>
+      <input class="val-input" id="input" type="text" inputmode="decimal"
+             autocomplete="off" spellcheck="false" enterkeyhint="done"
+             aria-label="輸入數值" value="30000">
+    </div>
+
+    <div class="divider">
+      <button class="swap" id="swapBtn" aria-label="交換換算方向">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true">
+          <path d="M9 5.5v13M9 5.5l-2.6 2.6M9 5.5l2.6 2.6"/>
+          <path d="M15 18.5v-13M15 18.5l-2.6-2.6M15 18.5l2.6-2.6"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="field out">
+      <div class="unit">
+        <span class="unit-cn" id="unitOutCn">新台幣 · 每坪</span>
+        <span class="unit-en" id="unitOutEn">TWD / PING</span>
+      </div>
+      <div class="val-row">
+        <div class="val-out" id="output">429,421</div>
+        <button class="copy" id="copyBtn" aria-label="複製結果">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" aria-hidden="true">
+            <rect x="8.5" y="8.5" width="11" height="11" rx="2.4"/>
+            <path d="M15.5 5.6V5a2 2 0 0 0-2-2H5.6a2 2 0 0 0-2 2v7.9a2 2 0 0 0 2 2h.6"/>
+          </svg>
+        </button>
+      </div>
+      <div class="sub" id="subLine">每平方公尺 NT$ 129,900</div>
+    </div>
+
+  </section>
+
+  <div class="note" id="note"></div>
+  <div class="list" id="chips"></div>
+
+  <div class="toast" id="toast">已複製</div>
+
+  <div class="sheet-wrap" id="sheetWrap">
+    <div class="sheet">
+      <h3>換算依據</h3>
+      <dl>
+        <div>
+          <dt>Unit</dt>
+          <dd>1 坪 ＝ <b>3.305785</b> 平方公尺；1 平方公尺 ＝ <b>0.3025</b> 坪。</dd>
+        </div>
+        <div>
+          <dt>Price</dt>
+          <dd>每坪單價 ＝ 每平方公尺單價 × 3.305785 × 匯率。金額四捨五入至整數。</dd>
+        </div>
+        <div>
+          <dt>Total</dt>
+          <dd>台幣總價 ＝ 人民幣總價 × 匯率；每坪單價 ＝ 台幣總價 ÷（面積 ÷ 3.305785）。</dd>
+        </div>
+        <div>
+          <dt>Rate</dt>
+          <dd>匯率 <b>4.9406</b>，取自 2026-11-11 00:26 新浪財經 CNY/TWD；可點數字自行修改，非即時報價。</dd>
+        </div>
+        <div>
+          <dt>Privacy</dt>
+          <dd>所有計算在本機完成，不上傳、不連網。</dd>
+        </div>
+      </dl>
+      <button class="sheet-close" id="sheetClose">關閉</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var SQM_PER_PING = 400 / 121;
+
+  var UNITS = {
+    price: {
+      cn: { cn: "人民幣 · 每平方公尺", en: "CNY / SQM", sym: "¥" },
+      tw: { cn: "新台幣 · 每坪",       en: "TWD / PING", sym: "NT$" }
+    },
+    total: {
+      cn: { cn: "人民幣 · 總價", en: "CNY TOTAL", sym: "¥" },
+      tw: { cn: "新台幣 · 總價", en: "TWD TOTAL", sym: "NT$" }
+    },
+    area: {
+      tw: { cn: "坪",       en: "PING", tag: "坪" },
+      cn: { cn: "平方公尺", en: "SQM",  tag: "㎡" }
+    }
+  };
+
+  var CHIPS = {
+    price: { cn2tw: [20000, 40000, 60000, 100000], tw2cn: [300000, 500000, 800000, 1200000] },
+    total: { once: [5000000, 8000000, 10000000, 15000000] },
+    area:  { tw2cn: [10, 20, 30, 50], cn2tw: [30, 50, 100, 200] }
+  };
+
+  var state = {
+    mode: "price",
+    dirPrice: "cn2tw",
+    dirArea: "tw2cn",
+    rate: 4.9406,
+    sqm: "100",
+    values: { price: "30000", total: "8000000", area: "68.5" }
+  };
+
+  var el = {
+    panel: document.getElementById("panel"),
+    input: document.getElementById("input"),
+    output: document.getElementById("output"),
+    unitInCn: document.getElementById("unitInCn"),
+    unitInEn: document.getElementById("unitInEn"),
+    unitOutCn: document.getElementById("unitOutCn"),
+    unitOutEn: document.getElementById("unitOutEn"),
+    areaWrap: document.getElementById("areaWrap"),
+    areaInput: document.getElementById("areaInput"),
+    subLine: document.getElementById("subLine"),
+    swapBtn: document.getElementById("swapBtn"),
+    copyBtn: document.getElementById("copyBtn"),
+    note: document.getElementById("note"),
+    chips: document.getElementById("chips"),
+    toast: document.getElementById("toast"),
+    sheetWrap: document.getElementById("sheetWrap"),
+    sheetClose: document.getElementById("sheetClose"),
+    aboutBtn: document.getElementById("aboutBtn")
+  };
+
+  function sanitize(raw) {
+    var s = String(raw).replace(/,/g, "").replace(/[^\d.]/g, "");
+    var dot = s.indexOf(".");
+    if (dot !== -1) s = s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, "");
+    if (s.length > 1 && s.charAt(0) === "0" && s.charAt(1) !== ".") s = s.replace(/^0+/, "");
+    if (s.charAt(0) === ".") s = "0" + s;
+    return s;
+  }
+
+  function parse(raw) {
+    var n = parseFloat(sanitize(raw));
+    return isFinite(n) ? n : 0;
+  }
+
+  function group(v, dp) {
+    var fixed = v.toFixed(dp);
+    var whole = fixed.split(".")[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return dp > 0 ? whole + "." + fixed.split(".")[1] : whole;
+  }
+
+  function pretty(s) {
+    if (!s) return s;
+    var parts = String(s).split(".");
+    var whole = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return parts.length > 1 ? whole + "." + parts[1] : whole;
+  }
+
+  function convert(v) {
+    if (state.mode === "price") {
+      return state.dirPrice === "cn2tw"
+        ? v * SQM_PER_PING * state.rate
+        : v / (SQM_PER_PING * state.rate);
+    }
+    return state.dirArea === "tw2cn" ? v * SQM_PER_PING : v / SQM_PER_PING;
+  }
+
+  function unitPair() {
+    if (state.mode === "price") {
+      var u = UNITS.price;
+      return state.dirPrice === "cn2tw"
+        ? { inU: u.cn, outU: u.tw }
+        : { inU: u.tw, outU: u.cn };
+    }
+    if (state.mode === "total") {
+      return { inU: UNITS.total.cn, outU: UNITS.total.tw };
+    }
+    var a = UNITS.area;
+    return state.dirArea === "tw2cn"
+      ? { inU: a.tw, outU: a.cn }
+      : { inU: a.cn, outU: a.tw };
+  }
+
+  function renderOutput() {
+    var v = parse(el.input.value);
+    var txt, dp = state.mode === "area" ? 2 : 0;
+
+    if (state.mode === "total") {
+      var sqm = parse(el.areaInput.value);
+      var ping = sqm > 0 ? sqm / SQM_PER_PING : 0;
+      var twd = v * state.rate;
+      var perPing = ping > 0 ? twd / ping : 0;
+      txt = group(twd, 0);
+      el.subLine.classList.remove("hidden");
+      el.subLine.textContent = ping > 0
+        ? "每坪 NT$ " + group(perPing, 0) + "　·　" + group(ping, 2) + " 坪"
+        : "請輸入面積";
+    } else {
+      var out = convert(v);
+      txt = group(out, dp);
+      if (state.mode === "price") {
+        el.subLine.classList.remove("hidden");
+        var per = state.dirPrice === "cn2tw" ? out / SQM_PER_PING : out * SQM_PER_PING;
+        el.subLine.textContent = state.dirPrice === "cn2tw"
+          ? "每平方公尺 NT$ " + group(per, 0)
+          : "每坪 ¥ " + group(per, 0);
+      } else {
+        el.subLine.classList.add("hidden");
+      }
+    }
+
+    el.output.textContent = txt;
+    el.output.style.fontSize = txt.length > 11 ? "clamp(19px, 5.6vw, 24px)" : "";
+  }
+
+  function renderStatic() {
+    var p = unitPair();
+    el.unitInCn.textContent = p.inU.cn;
+    el.unitInEn.textContent = p.inU.en;
+    el.unitOutCn.textContent = p.outU.cn;
+    el.unitOutEn.textContent = p.outU.en;
+
+    el.areaWrap.hidden = state.mode !== "total";
+    el.swapBtn.hidden = state.mode === "total";
+
+    if (state.mode === "area") {
+      el.note.innerHTML = "1 坪 ＝ <b>3.305785</b> ㎡　·　1 ㎡ ＝ <b>0.3025</b> 坪";
+    } else {
+      el.note.innerHTML = "1 坪 ＝ <b>3.305785</b> ㎡　·　1 CNY ＝ " +
+        '<input class="rate-edit" id="rateEdit" type="number" inputmode="decimal" step="0.01" min="0.01" value="' +
+        state.rate + '" aria-label="匯率"> TWD';
+      bindRate();
+    }
+
+    var key = state.mode === "price" ? state.dirPrice
+            : state.mode === "total" ? "once" : state.dirArea;
+    var list = CHIPS[state.mode][key];
+    el.chips.innerHTML = "";
+
+    var cap = document.createElement("div");
+    cap.className = "list-cap";
+    cap.textContent = state.mode === "price" ? "常見價位對照"
+                    : state.mode === "total" ? "常見總價對照" : "常見面積對照";
+    el.chips.appendChild(cap);
+
+    list.forEach(function (n) {
+      var inTxt, outTxt;
+      if (state.mode === "price") {
+        var o1 = state.dirPrice === "cn2tw"
+          ? n * SQM_PER_PING * state.rate
+          : n / (SQM_PER_PING * state.rate);
+        if (state.dirPrice === "cn2tw") {
+          inTxt  = "¥ " + group(n, 0) + "<small>/㎡</small>";
+          outTxt = "NT$ " + group(o1, 0) + "<small>/坪</small>";
+        } else {
+          inTxt  = "NT$ " + group(n, 0) + "<small>/坪</small>";
+          outTxt = "¥ " + group(o1, 0) + "<small>/㎡</small>";
+        }
+      } else if (state.mode === "total") {
+        var o2 = n * state.rate;
+        inTxt  = "¥ " + group(n, 0);
+        outTxt = "NT$ " + group(o2, 0);
+      } else {
+        var o3 = state.dirArea === "tw2cn" ? n * SQM_PER_PING : n / SQM_PER_PING;
+        if (state.dirArea === "tw2cn") {
+          inTxt  = group(n, 0) + "<small>坪</small>";
+          outTxt = group(o3, 2) + "<small>㎡</small>";
+        } else {
+          inTxt  = group(n, 0) + "<small>㎡</small>";
+          outTxt = group(o3, 2) + "<small>坪</small>";
+        }
+      }
+      var row = document.createElement("button");
+      row.type = "button";
+      row.className = "row";
+      row.innerHTML = '<span class="r-in">' + inTxt + '</span><span class="r-out">' + outTxt + '</span>';
+      row.addEventListener("click", function () {
+        el.input.value = pretty(String(n));
+        state.values[state.mode] = el.input.value;
+        renderOutput();
+        save();
+      });
+      el.chips.appendChild(row);
+    });
+
+    Array.prototype.forEach.call(document.querySelectorAll(".seg-btn"), function (btn) {
+      var on = btn.dataset.mode === state.mode;
+      btn.classList.toggle("is-active", on);
+      btn.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+
+  function bindRate() {
+    var re = document.getElementById("rateEdit");
+    if (!re) return;
+    re.addEventListener("input", function () {
+      var n = parseFloat(re.value);
+      if (!isFinite(n) || n <= 0) return;
+      state.rate = n;
+      renderOutput();
+      save();
+    });
+    re.addEventListener("blur", function () { re.value = state.rate; });
+  }
+
+  function render() {
+    el.input.value = pretty(state.values[state.mode]);
+    state.values[state.mode] = el.input.value;
+    el.areaInput.value = state.sqm;
+    renderStatic();
+    renderOutput();
+  }
+
+  function bindNumberInput(input, onValue) {
+    input.addEventListener("input", function () {
+      var clean = sanitize(input.value);
+      if (clean !== input.value) {
+        var pos = input.selectionStart;
+        input.value = clean;
+        if (pos !== null) {
+          var d = input.value.length - clean.length;
+          input.setSelectionRange(Math.max(0, pos - d), Math.max(0, pos - d));
+        }
+      }
+      onValue(input.value);
+    });
+    input.addEventListener("focus", function () {
+      var len = input.value.length;
+      if (len > 0) setTimeout(function () {
+        try { input.setSelectionRange(len, len); } catch (e) {}
+      }, 0);
+    });
+    input.addEventListener("blur", function () {
+      var s = sanitize(input.value);
+      if (!s) return;
+      input.value = pretty(s);
+      onValue(input.value);
+    });
+  }
+
+  bindNumberInput(el.input, function (v) {
+    state.values[state.mode] = v;
+    renderOutput();
+    save();
+  });
+
+  bindNumberInput(el.areaInput, function (v) {
+    state.sqm = v;
+    renderOutput();
+    save();
+  });
+
+  el.swapBtn.addEventListener("click", function () {
+    if (state.mode === "total") return;
+    var out = convert(parse(el.input.value));
+    if (state.mode === "price") {
+      state.dirPrice = state.dirPrice === "cn2tw" ? "tw2cn" : "cn2tw";
+    } else {
+      state.dirArea = state.dirArea === "tw2cn" ? "cn2tw" : "tw2cn";
+    }
+    var next = state.mode === "price" ? Math.round(out) : Math.round(out * 10000) / 10000;
+    state.values[state.mode] = String(next);
+    renderStatic();
+    el.input.value = pretty(state.values[state.mode]);
+    renderOutput();
+    var svg = el.swapBtn.querySelector("svg");
+    svg.style.transform = svg.style.transform === "rotate(180deg)" ? "rotate(0deg)" : "rotate(180deg)";
+    save();
+  });
+
+  el.copyBtn.addEventListener("click", function () {
+    var sym = (state.mode === "area") ? "" : unitPair().outU.sym + " ";
+    var txt = el.output.textContent;
+    var done = function () { toast("已複製 " + sym + txt); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(done, fallback);
+    } else { fallback(); }
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = txt;
+      ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); done(); } catch (e) { toast("複製失敗，請長按選取"); }
+      document.body.removeChild(ta);
+    }
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll(".seg-btn"), function (btn) {
+    btn.addEventListener("click", function () {
+      if (btn.dataset.mode === state.mode) return;
+      state.mode = btn.dataset.mode;
+      renderStatic();
+      el.input.value = pretty(state.values[state.mode]);
+      renderOutput();
+      save();
+    });
+  });
+
+  var toastTimer = null;
+  function toast(msg) {
+    el.toast.textContent = msg;
+    el.toast.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.toast.classList.remove("on"); }, 1700);
+  }
+
+  el.aboutBtn.addEventListener("click", function () { el.sheetWrap.classList.add("on"); });
+  el.sheetClose.addEventListener("click", function () { el.sheetWrap.classList.remove("on"); });
+  el.sheetWrap.addEventListener("click", function (e) {
+    if (e.target === el.sheetWrap) el.sheetWrap.classList.remove("on");
+  });
+
+  var KEY = "pinghui.v4";
+  function save() {
+    try {
+      localStorage.setItem(KEY, JSON.stringify({
+        mode: state.mode, dirPrice: state.dirPrice, dirArea: state.dirArea,
+        rate: state.rate, sqm: state.sqm, values: state.values
+      }));
+    } catch (e) {}
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return;
+      var o = JSON.parse(raw);
+      if (!o || !o.values) return;
+      state.mode = (o.mode === "area" || o.mode === "total") ? o.mode : "price";
+      state.dirPrice = o.dirPrice === "tw2cn" ? "tw2cn" : "cn2tw";
+      state.dirArea = o.dirArea === "cn2tw" ? "cn2tw" : "tw2cn";
+      if (typeof o.rate === "number" && o.rate > 0) state.rate = o.rate;
+      state.sqm = String(o.sqm || state.sqm);
+      state.values.price = String(o.values.price || state.values.price);
+      state.values.total = String(o.values.total || state.values.total);
+      state.values.area  = String(o.values.area  || state.values.area);
+    } catch (e) {}
+  }
+
+  load();
+  var h = (location.hash || "").replace("#", "");
+  if (h === "price" || h === "total" || h === "area") state.mode = h;
+  render();
+})();
+</script>
+</body>
+</html>
